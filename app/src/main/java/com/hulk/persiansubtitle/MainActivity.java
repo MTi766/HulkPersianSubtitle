@@ -12,9 +12,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 public class MainActivity extends Activity {
-
+private TextView activeSubtitle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +59,7 @@ public class MainActivity extends Activity {
             (WindowManager) getSystemService(WINDOW_SERVICE);
 
         TextView subtitle = new TextView(this);
+activeSubtitle = subtitle;
         subtitle.setText("سلام! این یک زیرنویس فارسی آزمایشی است.");
         subtitle.setTextSize(22);
         subtitle.setTextColor(Color.WHITE);
@@ -74,10 +81,20 @@ public class MainActivity extends Activity {
 
         wm.addView(subtitle, params);
 
-        subtitle.setOnClickListener(v -> {
-            wm.removeView(subtitle);
+        
+subtitle.setOnClickListener(v -> {
+wm.removeView(subtitle);
+activeSubtitle = null;
         });
 
-        finish();
+
+        //finish();
     }
+private void updateSubtitle(String text) {
+    runOnUiThread(() -> {
+        if (activeSubtitle != null) {
+            activeSubtitle.setText(text);
+        }
+  });
+}
 }
