@@ -38,8 +38,13 @@ private TextView activeSubtitle;
         button.setText("نمایش زیرنویس آزمایشی");
 
         layout.addView(title);
-        layout.addView(button);
-        setContentView(layout);
+layout.addView(button);
+setContentView(layout);
+startServer();
+
+
+
+
 
         button.setOnClickListener(v -> {
             if (!Settings.canDrawOverlays(this)) {
@@ -97,4 +102,30 @@ private void updateSubtitle(String text) {
         }
   });
 }
+
+private void startServer() {
+    new Thread(() -> {
+        try (ServerSocket server = new ServerSocket(5050)) {
+            while (true) {
+                try (
+                    Socket client = server.accept();
+                    BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(
+                            client.getInputStream(),
+                            StandardCharsets.UTF_8
+                        )
+                    )
+                ) {
+                    String text;
+                    while ((text = reader.readLine()) != null) {
+                        updateSubtitle(text);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
+
 }
