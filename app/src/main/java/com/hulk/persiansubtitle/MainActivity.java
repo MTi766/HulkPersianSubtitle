@@ -19,12 +19,20 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 public class MainActivity extends Activity {
 private TextView activeSubtitle;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Overri
+protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+if (Build.VERSION.SDK_INT >= 23 &&
+        checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+    requestPermissions(
+            new String[]{Manifest.permission.RECORD_AUDIO}, 100);
+}
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(30, 50, 30, 30);
