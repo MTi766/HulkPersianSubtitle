@@ -106,7 +106,14 @@ private void updateSubtitle(String text) {
 private void startServer() {
     new Thread(() -> {
         try (ServerSocket server = new ServerSocket(5050)) {
-            while (true) {
+            runOnUiThread(() -> {
+    android.widget.Toast.makeText(
+        MainActivity.this,
+        "SERVER STARTED: 5050",
+        android.widget.Toast.LENGTH_LONG
+    ).show();
+}
+);while (true) {
                 try (Socket client = server.accept();
                      BufferedReader reader = new BufferedReader(
                          new InputStreamReader(
