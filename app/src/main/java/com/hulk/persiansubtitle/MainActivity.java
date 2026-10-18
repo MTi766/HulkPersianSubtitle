@@ -97,10 +97,22 @@ activeSubtitle = null;
     }
 private void updateSubtitle(String text) {
     runOnUiThread(() -> {
+        if (activeSubtitle == null) {
+            if (!Settings.canDrawOverlays(this)) {
+                android.widget.Toast.makeText(
+                    this,
+                    "مجوز نمایش روی برنامه‌های دیگر را فعال کنید",
+                    android.widget.Toast.LENGTH_LONG
+                ).show();
+                return;
+            }
+            showSubtitle();
+        }
+
         if (activeSubtitle != null) {
             activeSubtitle.setText(text);
         }
-  });
+    });
 }
 
 private void startServer() {
