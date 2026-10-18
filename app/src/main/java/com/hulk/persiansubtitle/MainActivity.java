@@ -107,25 +107,94 @@ private void startServer() {
     new Thread(() -> {
         try (ServerSocket server = new ServerSocket(5050)) {
             while (true) {
-                try (
-                    Socket client = server.accept();
-                    BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(
-                            client.getInputStream(),
-                            StandardCharsets.UTF_8
-                        )
-                    )
-                ) {
-                    String text;
-                    while ((text = reader.readLine()) != null) {
+                try (Socket client = server.accept();
+                     BufferedReader reader = new BufferedReader(
+                         new InputStreamReader(
+                             client.getInputStream(),
+                             StandardCharsets.UTF_8));
+                     OutputStream out = client.getOutputStream()) {
+
+                    String request = reader.readLine();
+                    if (request == null) continue;
+
+                    int contentLength = 0;
+                    String line;
+
+                    while ((line = reader.readLine()) != null
+                            && !line.isEmpty()) {
+                        if (line.toLowerCase().startsWith(
+                                "content-length:")) {
+                            contentLength = Integer.parseInt(
+                                line.substring(line.indexOf(':') + 1)
+                                    .trim());
+                        }
+                    }
+
+                    String data = "";
+                    if (request.startsWith("POST ")) {
+                        StringBuilder body = new StringBuilder();
+                        for (int i = 0; i < contentLength; i++) {
+                            int ch = reader.read();
+                            if (ch == -1) break;
+                            body.append((char) ch);
+                        }
+                        data = body.toString();
+                    } else {
+                        String[] parts = request.split(" ");
+                        if (parts.length > 1
+                                && parts[1].contains("?")) {
+                            data = parts[1].substring(
+                                parts[1].indexOf('?') + 1);
+                        }
+                    }
+
+                    String text = "";
+                    for (String item : data.split("&")) {
+                        if (item.startsWith("text=")) {
+                            text = URLDecoder.decode(
+                                item.substring(5), "UTF-8");
+                            break;
+                        }
+                    }
+
+                    if (!text.trim().isEmpty()) {
                         updateSubtitle(text);
                     }
+
+                    String html =
+                        "<!doctype html><html><meta charset='UTF-8'>"
+                        + "<meta name='viewport' content='width=device-width,"
+                        + " initial-scale=1'><body dir='rtl'>"
+                        + "<h3>زیرنویس فارسی هالک</h3>"
+                        + "<form method='POST'>"
+                        + "<textarea name='text' rows='4' "
+                        + "style='width:95%;font-size:20px' "
+                        + "placeholder='متن فارسی را بنویس'></textarea>"
+                        + "<br><button style='font-size:20px'>"
+                        + "ارسال به تلویزیون</button></form>"
+                        + "<p>متن ارسال شد؟ تصویر تلویزیون را بررسی کن.</p>"
+                        + "</body></html>";
+
+                    byte[] bytes = html.getBytes(
+                        StandardCharsets.UTF_8);
+
+                    String headers =
+                        "HTTP/1.1 200 OK\r\n"
+                        + "Content-Type: text/html; charset=UTF-8\r\n"
+                        + "Content-Length: " + bytes.length + "\r\n"
+                        + "Connection: close\r\n\r\n";
+
+                    out.write(headers.getBytes(
+                        StandardCharsets.US_ASCII));
+                    out.write(bytes);
+                    out.flush();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }).start();
-}
-
 }
