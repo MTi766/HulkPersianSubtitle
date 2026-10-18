@@ -194,8 +194,15 @@ private void startServer() {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        }
+    e.printStackTrace();
+    runOnUiThread(() -> {
+        android.widget.Toast.makeText(
+            MainActivity.this,
+            "SERVER ERROR: " + e.toString(),
+            android.widget.Toast.LENGTH_LONG
+        ).show();
+    });
+}
     }).start();
 }
 }
