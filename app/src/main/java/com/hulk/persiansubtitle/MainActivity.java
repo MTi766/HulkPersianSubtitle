@@ -24,7 +24,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 public class MainActivity extends Activity {
 private TextView activeSubtitle;
-    @Overri
+    @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 if (Build.VERSION.SDK_INT >= 23 &&
