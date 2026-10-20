@@ -51,13 +51,28 @@ if (Build.VERSION.SDK_INT >= 23 &&
 
         Button button = new Button(this);
         button.setText("نمایش زیرنویس آزمایشی");
+Button micButton = new Button(this);
+micButton.setText("🎤 شروع تشخیص صدای انگلیسی");
 
-        layout.addView(title);
+micButton.setOnClickListener(v -> {
+    if (Build.VERSION.SDK_INT >= 23 &&
+        checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+        != PackageManager.PERMISSION_GRANTED) {
+
+        requestPermissions(
+            new String[]{Manifest.permission.RECORD_AUDIO},
+            1001
+        );
+        return;
+    }
+
+    
+
+layout.addView(title);
 layout.addView(button);
+layout.addView(micButton);
 setContentView(layout);
 startServer();
-
-
 
 
 
