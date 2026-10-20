@@ -22,8 +22,15 @@ import java.nio.charset.StandardCharsets;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.speech.SpeechRecognizer;
+import android.speech.RecognizerIntent;
+import android.speech.RecognitionListener;
+import java.util.ArrayList;
 public class MainActivity extends Activity {
 private TextView activeSubtitle;
+private SpeechRecognizer speechRecognizer;
+private Intent speechIntent;
+private boolean isListening = false;
     @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
