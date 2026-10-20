@@ -36,6 +36,7 @@ private TextView activeSubtitle;
 private SpeechRecognizer speechRecognizer;
 private Intent speechIntent;
 private boolean isListening = false;
+private static volatile boolean serverRunning = false;
     @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +152,11 @@ private void updateSubtitle(String text) {
 }
 
 private void startServer() {
+    synchronized (MainActivity.class) {
+        if (serverRunning) return;
+        serverRunning = true;
+    }
+
     new Thread(() -> {
         try (ServerSocket server = new ServerSocket(5050)) {
             runOnUiThread(() -> {
@@ -244,6 +250,7 @@ private void startServer() {
                     out.flush();
 
                 } catch (Exception e) {
+serverRunning = false;
                     e.printStackTrace();
                 }
             }
