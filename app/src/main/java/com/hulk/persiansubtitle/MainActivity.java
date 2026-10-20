@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.BufferedReader;
@@ -374,10 +375,20 @@ private void startSpeechRecognition() {
                 }
             }
 
-            @Override
-            public void onError(int error) {
-                isListening = false;
-            }
+@Override
+public void onError(int error) {
+    isListening = false;
+
+    runOnUiThread(() -> {
+        Toast.makeText(
+            MainActivity.this,
+            "خطای تشخیص صدا: " + error,
+            Toast.LENGTH_LONG
+        ).show();
+    });
+}
+        
+            
 
             @Override
             public void onBeginningOfSpeech() {}
