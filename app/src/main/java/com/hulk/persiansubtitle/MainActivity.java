@@ -71,7 +71,7 @@ micButton.setOnClickListener(v -> {
     }
 
     
-
+});
 layout.addView(title);
 layout.addView(button);
 layout.addView(micButton);
