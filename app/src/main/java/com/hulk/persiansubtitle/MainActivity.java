@@ -26,6 +26,10 @@ import android.speech.SpeechRecognizer;
 import android.speech.RecognizerIntent;
 import android.speech.RecognitionListener;
 import java.util.ArrayList;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import org.json.JSONArray;
 public class MainActivity extends Activity {
 private TextView activeSubtitle;
 private SpeechRecognizer speechRecognizer;
@@ -254,6 +258,77 @@ private void startServer() {
 }
     }).start();
 }
+private void translateToPersian(String text) {
+    new Thread(() -> {
+        HttpURLConnection connection = null;
+
+        try {
+            String encodedText = URLEncoder.encode(
+                text, "UTF-8"
+            );
+
+            URL url = new URL(
+                "https://translate.googleapis.com/translate_a/single"
+                + "?client=gtx&sl=en&tl=fa&dt=t&q="
+                + encodedText
+            );
+
+            connection = (HttpURLConnection)
+                url.openConnection();
+
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                    connection.getInputStream(),
+                    StandardCharsets.UTF_8
+                )
+            );
+
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            reader.close();
+
+            JSONArray root = new JSONArray(
+                response.toString()
+            );
+
+            JSONArray sentences = root.getJSONArray(0);
+            StringBuilder translated = new StringBuilder();
+
+            for (int i = 0; i < sentences.length(); i++) {
+                JSONArray sentence = sentences.getJSONArray(i);
+
+                if (!sentence.isNull(0)) {
+                    translated.append(sentence.getString(0));
+                }
+            }
+
+            String result = translated.toString();
+
+            runOnUiThread(() -> updateSubtitle(result));
+
+        } catch (Exception e) {
+            runOnUiThread(() ->
+                updateSubtitle(text)
+            );
+
+            e.printStackTrace();
+
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }).start();
+}
 
 private void startSpeechRecognition() {
     if (SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -295,7 +370,7 @@ private void startSpeechRecognition() {
                         );
 
                 if (matches != null && !matches.isEmpty()) {
-                    updateSubtitle(matches.get(0));
+                    translateToPersian(matches.get(0));
                 }
             }
 
