@@ -73,7 +73,7 @@ micButton.setOnClickListener(v -> {
         return;
     }
 
-    
+    startSpeechRecognition();
 });
 layout.addView(title);
 layout.addView(button);
