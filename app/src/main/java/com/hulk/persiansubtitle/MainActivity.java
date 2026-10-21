@@ -394,17 +394,47 @@ public void onReadyForSpeech(Bundle params) {
             }
 
 @Override
+
 public void onError(int error) {
     isListening = false;
 
-    runOnUiThread(() -> {
+    String message;
+
+    switch (error) {
+        case SpeechRecognizer.ERROR_NETWORK:
+            message = "خطای شبکه؛ سرویس تشخیص صدا در دسترس نیست";
+            break;
+
+        case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+            message = "زمان اتصال به سرویس تشخیص صدا تمام شد";
+            break;
+
+        case SpeechRecognizer.ERROR_SERVER:
+            message = "خطای سرور تشخیص صدا";
+            break;
+
+        case SpeechRecognizer.ERROR_NO_MATCH:
+            message = "صدایی تشخیص داده نشد";
+            break;
+
+        case SpeechRecognizer.ERROR_AUDIO:
+            message = "خطای دریافت صدا از میکروفن";
+            break;
+
+        default:
+            message = "خطای تشخیص صدا: " + error;
+            break;
+    }
+
+    runOnUiThread(() ->
         Toast.makeText(
             MainActivity.this,
-            "خطای تشخیص صدا: " + error,
+            message,
             Toast.LENGTH_LONG
-        ).show();
-    });
+        ).show()
+    );
 }
+    
         
             
 
