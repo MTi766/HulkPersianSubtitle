@@ -364,10 +364,20 @@ private void startSpeechRecognition() {
 
         speechRecognizer.setRecognitionListener(
                 new RecognitionListener() {
-            @Override
-            public void onReadyForSpeech(Bundle params) {
-                isListening = true;
-            }
+            
+@Override
+public void onReadyForSpeech(Bundle params) {
+    isListening = true;
+
+    runOnUiThread(() -> {
+        Toast.makeText(
+            MainActivity.this,
+            "میکروفون آماده شنیدن است",
+            Toast.LENGTH_LONG
+        ).show();
+    });
+}
+
 
             @Override
             public void onResults(Bundle results) {
