@@ -339,9 +339,18 @@ private void translateToPersian(String text) {
     }).start();
 }
 
+
 private void startSpeechRecognition() {
-    if (SpeechRecognizer.isRecognitionAvailable(this)) {
+    if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+        Toast.makeText(this,
+                "سرویس تشخیص گفتار در دسترس نیست",
+                Toast.LENGTH_LONG).show();
+        return;
+    }
+
+    try {
         if (speechRecognizer != null) {
+            speechRecognizer.cancel();
             speechRecognizer.destroy();
         }
 
@@ -349,94 +358,73 @@ private void startSpeechRecognition() {
                 SpeechRecognizer.createSpeechRecognizer(this);
 
         speechIntent = new Intent(
-                RecognizerIntent.ACTION_RECOGNIZE_SPEECH
-        );
-
-        speechIntent.putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE,
-                "en-US"
-        );
+                RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
         speechIntent.putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        );
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+
+        speechIntent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+
+        speechIntent.putExtra(
+                RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
 
         speechRecognizer.setRecognitionListener(
                 new RecognitionListener() {
-            
-@Override
-public void onReadyForSpeech(Bundle params) {
-    isListening = true;
 
-    runOnUiThread(() -> {
-        Toast.makeText(
-            MainActivity.this,
-            "میکروفون آماده شنیدن است",
-            Toast.LENGTH_LONG
-        ).show();
-    });
-}
-
+            @Override
+            public void onReadyForSpeech(Bundle params) {
+                isListening = true;
+                runOnUiThread(() ->
+                    Toast.makeText(MainActivity.this,
+                        "میکروفن آماده شنیدن است",
+                        Toast.LENGTH_SHORT).show());
+            }
 
             @Override
             public void onResults(Bundle results) {
                 isListening = false;
 
                 ArrayList<String> matches =
-                        results.getStringArrayList(
-                                SpeechRecognizer.RESULTS_RECOGNITION
-                        );
+                    results.getStringArrayList(
+                        SpeechRecognizer.RESULTS_RECOGNITION);
 
                 if (matches != null && !matches.isEmpty()) {
                     translateToPersian(matches.get(0));
+                } else {
+                    showSpeechMessage("صدایی تشخیص داده نشد");
                 }
             }
 
-@Override
+            @Override
+            public void onError(int error) {
+                isListening = false;
+                String message;
 
-public void onError(int error) {
-    isListening = false;
+                switch (error) {
+                    case SpeechRecognizer.ERROR_NETWORK:
+                        message = "خطای شبکه";
+                        break;
+                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                        message = "مهلت اتصال به شبکه تمام شد";
+                        break;
+                    case SpeechRecognizer.ERROR_NO_MATCH:
+                        message = "گفتار قابل تشخیص نبود";
+                        break;
+                    case SpeechRecognizer.ERROR_AUDIO:
+                        message = "خطای دریافت صدا";
+                        break;
+                    case SpeechRecognizer.ERROR_CLIENT:
+                        message = "خطای داخلی تشخیص گفتار (5)";
+                        break;
+                    default:
+                        message = "خطای تشخیص گفتار: " + error;
+                        break;
+                }
 
-    String message;
-
-    switch (error) {
-        case SpeechRecognizer.ERROR_NETWORK:
-            message = "خطای شبکه؛ سرویس تشخیص صدا در دسترس نیست";
-            break;
-
-        case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-            message = "زمان اتصال به سرویس تشخیص صدا تمام شد";
-            break;
-
-        case SpeechRecognizer.ERROR_SERVER:
-            message = "خطای سرور تشخیص صدا";
-            break;
-
-        case SpeechRecognizer.ERROR_NO_MATCH:
-            message = "صدایی تشخیص داده نشد";
-            break;
-
-        case SpeechRecognizer.ERROR_AUDIO:
-            message = "خطای دریافت صدا از میکروفن";
-            break;
-
-        default:
-            message = "خطای تشخیص صدا: " + error;
-            break;
-    }
-
-    runOnUiThread(() ->
-        Toast.makeText(
-            MainActivity.this,
-            message,
-            Toast.LENGTH_LONG
-        ).show()
-    );
-}
-    
-        
-            
+                showSpeechMessage(message);
+            }
 
             @Override
             public void onBeginningOfSpeech() {}
@@ -448,7 +436,9 @@ public void onError(int error) {
             public void onBufferReceived(byte[] buffer) {}
 
             @Override
-            public void onEndOfSpeech() {}
+            public void onEndOfSpeech() {
+                isListening = false;
+            }
 
             @Override
             public void onPartialResults(Bundle results) {}
@@ -458,6 +448,20 @@ public void onError(int error) {
         });
 
         speechRecognizer.startListening(speechIntent);
+
+    } catch (Exception e) {
+        isListening = false;
+        showSpeechMessage("خطا: " + e.getMessage());
     }
 }
+
+private void showSpeechMessage(String message) {
+    runOnUiThread(() -> {
+        Toast.makeText(
+            MainActivity.this,
+            message,
+            Toast.LENGTH_LONG
+        ).show();
+    });
 }
+
