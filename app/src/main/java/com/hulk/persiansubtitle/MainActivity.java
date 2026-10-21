@@ -37,6 +37,7 @@ private SpeechRecognizer speechRecognizer;
 private Intent speechIntent;
 private boolean isListening = false;
 private static volatile boolean serverRunning = false;
+private static volatile boolean serverRunning = false;
     @Override
 protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
