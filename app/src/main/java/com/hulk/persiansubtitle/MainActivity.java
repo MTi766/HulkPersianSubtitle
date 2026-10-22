@@ -446,7 +446,8 @@ new android.os.Handler(
             if (!isListening) {
                 startSpeechRecognition();
             }
-        }, 700);
+}, 3000);
+        
     }
 
     @Override
