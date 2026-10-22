@@ -72,7 +72,10 @@ micButton.setOnClickListener(v -> {
         );
         return;
     }
-
+startForegroundService(
+    new Intent(MainActivity.this,
+        SpeechKeepAliveService.class)
+);
     startSpeechRecognition();
 });
 layout.addView(title);
