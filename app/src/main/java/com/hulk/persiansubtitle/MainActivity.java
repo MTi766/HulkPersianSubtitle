@@ -373,93 +373,84 @@ private void startSpeechRecognition() {
         speechIntent.putExtra(
                 RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
 
-        speechRecognizer.setRecognitionListener(
-                new RecognitionListener() {
 
-            @Override
-            public void onReadyForSpeech(Bundle params) {
-                isListening = true;
-                runOnUiThread(() ->
-                    Toast.makeText(MainActivity.this,
-                        "میکروفن آماده شنیدن است",
-                        Toast.LENGTH_SHORT).show());
-            }
+speechRecognizer.setRecognitionListener(new RecognitionListener() {
 
-            @Override
-            public void onResults(Bundle results) {
-                isListening = false;
-
-                ArrayList<String> matches =
-                    results.getStringArrayList(
-                        SpeechRecognizer.RESULTS_RECOGNITION);
-
-            if (matches != null && !matches.isEmpty()) {
-    translateToPersian(matches.get(0));
-} else {
-    showSpeechMessage("صدایی تشخیص داده نشد");
-}
-
-new android.os.Handler(
-    android.os.Looper.getMainLooper()
-).postDelayed(() -> {
-    if (!isListening) {
-        startSpeechRecognition();
+    @Override
+    public void onReadyForSpeech(Bundle params) {
+        isListening = true;
     }
-}, 700);
-                    
 
-            @Override
-            public void onError(int error) {
-                isListening = false;
-                String message;
+    @Override
+    public void onBeginningOfSpeech() {
+    }
 
-                switch (error) {
-                    case SpeechRecognizer.ERROR_NETWORK:
-                        message = "خطای شبکه";
-                        break;
-                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                        message = "مهلت اتصال به شبکه تمام شد";
-                        break;
-                    case SpeechRecognizer.ERROR_NO_MATCH:
-                        message = "گفتار قابل تشخیص نبود";
-                        break;
-                    case SpeechRecognizer.ERROR_AUDIO:
-                        message = "خطای دریافت صدا";
-                        break;
-                    case SpeechRecognizer.ERROR_CLIENT:
-                        message = "خطای داخلی تشخیص گفتار (5)";
-                        break;
-                    default:
-                        message = "خطای تشخیص گفتار: " + error;
-                        break;
-                }
+    @Override
+    public void onRmsChanged(float rmsdB) {
+    }
 
-if (error != SpeechRecognizer.ERROR_CLIENT) {
-    showSpeechMessage(message);
-}
-                
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        isListening = false;
+    }
+
+    @Override
+    public void onError(int error) {
+        isListening = false;
+
+        if (error != SpeechRecognizer.ERROR_CLIENT) {
+            showSpeechMessage("خطای تشخیص گفتار: " + error);
+        }
+
+        new android.os.Handler(
+            android.os.Looper.getMainLooper()
+        ).postDelayed(() -> {
+            if (!isListening) {
+                startSpeechRecognition();
             }
+        }, 700);
+    }
 
-            @Override
-            public void onBeginningOfSpeech() {}
+    @Override
+    public void onResults(Bundle results) {
+        isListening = false;
 
-            @Override
-            public void onRmsChanged(float rmsdB) {}
+        ArrayList<String> matches =
+            results.getStringArrayList(
+                SpeechRecognizer.RESULTS_RECOGNITION
+            );
 
-            @Override
-            public void onBufferReceived(byte[] buffer) {}
+        if (matches != null && !matches.isEmpty()) {
+            translateToPersian(matches.get(0));
+        } else {
+            showSpeechMessage("صدایی تشخیص داده نشد");
+        }
 
-            @Override
-            public void onEndOfSpeech() {
-                isListening = false;
+        new android.os.Handler(
+            android.os.Looper.getMainLooper()
+        ).postDelayed(() -> {
+            if (!isListening) {
+                startSpeechRecognition();
             }
+        }, 700);
+    }
 
-            @Override
-            public void onPartialResults(Bundle results) {}
+    @Override
+    public void onPartialResults(Bundle partialResults) {
+    }
 
-            @Override
-            public void onEvent(int eventType, Bundle params) {}
-        });
+    @Override
+    public void onEvent(int eventType, Bundle params) {
+    }
+
+});
+
+
+        
 
         speechRecognizer.startListening(speechIntent);
 
