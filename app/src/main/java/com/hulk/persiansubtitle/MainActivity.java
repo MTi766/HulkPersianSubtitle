@@ -398,22 +398,26 @@ speechRecognizer.setRecognitionListener(new RecognitionListener() {
         isListening = false;
     }
 
-    @Override
-    public void onError(int error) {
-        isListening = false;
+    
+@Override
+public void onError(int error) {
+    isListening = false;
 
-        if (error != SpeechRecognizer.ERROR_CLIENT) {
-            showSpeechMessage("خطای تشخیص گفتار: " + error);
-        }
-
-        new android.os.Handler(
-            android.os.Looper.getMainLooper()
-        ).postDelayed(() -> {
-            if (!isListening) {
-                startSpeechRecognition();
-            }
-        }, 700);
+    if (error != SpeechRecognizer.ERROR_NO_MATCH &&
+        error != SpeechRecognizer.ERROR_SPEECH_TIMEOUT &&
+        error != SpeechRecognizer.ERROR_CLIENT) {
+        showSpeechMessage("خطای تشخیص گفتار: " + error);
     }
+
+    new android.os.Handler(
+        android.os.Looper.getMainLooper()
+    ).postDelayed(() -> {
+        if (!isListening) {
+            startSpeechRecognition();
+        }
+    }, 1500);
+}
+
 
     @Override
     public void onResults(Bundle results) {
