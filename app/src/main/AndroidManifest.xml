@@ -20,5 +20,8 @@
             </intent-filter>
 
         </activity>
+<service
+    android:name=".SpeechKeepAliveService"
+    android:exported="false" />
     </application>
 </manifest>
