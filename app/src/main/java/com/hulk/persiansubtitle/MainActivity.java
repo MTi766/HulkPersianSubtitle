@@ -423,7 +423,10 @@ private void startSpeechRecognition() {
                         break;
                 }
 
-                showSpeechMessage(message);
+if (error != SpeechRecognizer.ERROR_CLIENT) {
+    showSpeechMessage(message);
+}
+                
             }
 
             @Override
