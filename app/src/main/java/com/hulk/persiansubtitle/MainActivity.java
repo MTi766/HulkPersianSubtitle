@@ -352,14 +352,10 @@ private void startSpeechRecognition() {
     }
 
     try {
-        if (speechRecognizer != null) {
-            speechRecognizer.cancel();
-            speechRecognizer.destroy();
-        }
-
-        speechRecognizer =
-                SpeechRecognizer.createSpeechRecognizer(this);
-
+        if (speechRecognizer == null) {
+    speechRecognizer =
+            SpeechRecognizer.createSpeechRecognizer(this);
+}
         speechIntent = new Intent(
                 RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
