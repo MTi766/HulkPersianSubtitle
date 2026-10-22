@@ -393,12 +393,20 @@ private void startSpeechRecognition() {
                     results.getStringArrayList(
                         SpeechRecognizer.RESULTS_RECOGNITION);
 
-                if (matches != null && !matches.isEmpty()) {
-                    translateToPersian(matches.get(0));
-                } else {
-                    showSpeechMessage("صدایی تشخیص داده نشد");
-                }
-            }
+            if (matches != null && !matches.isEmpty()) {
+    translateToPersian(matches.get(0));
+} else {
+    showSpeechMessage("صدایی تشخیص داده نشد");
+}
+
+new android.os.Handler(
+    android.os.Looper.getMainLooper()
+).postDelayed(() -> {
+    if (!isListening) {
+        startSpeechRecognition();
+    }
+}, 700);
+                    
 
             @Override
             public void onError(int error) {
