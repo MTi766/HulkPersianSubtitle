@@ -469,4 +469,10 @@ private void showSpeechMessage(String message) {
         ).show();
     });
 }
+
+@Override
+public void onBackPressed() {
+    moveTaskToBack(true);
+}
+
 }
