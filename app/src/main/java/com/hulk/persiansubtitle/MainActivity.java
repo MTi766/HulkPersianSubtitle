@@ -409,13 +409,19 @@ public void onError(int error) {
         showSpeechMessage("خطای تشخیص گفتار: " + error);
     }
 
-    new android.os.Handler(
-        android.os.Looper.getMainLooper()
-    ).postDelayed(() -> {
-        if (!isListening) {
-            startSpeechRecognition();
-        }
-    }, 1500);
+
+long delay = (error == SpeechRecognizer.ERROR_NETWORK
+        || error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT)
+        ? 5000 : 1500;
+
+new android.os.Handler(
+    android.os.Looper.getMainLooper()
+).postDelayed(() -> {
+    if (!isListening) {
+        startSpeechRecognition();
+    }
+}, delay);
+
 }
 
 
